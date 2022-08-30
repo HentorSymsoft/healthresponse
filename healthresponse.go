@@ -1,32 +1,33 @@
 package healthresponse
 
 import (
-	"fmt"
+	// "fmt"
 	"github.com/gin-gonic/gin"
+	"log"
 	"net/http"
 )
 
 type Response struct {
 	Status int
-	Body any
+	Body   any
 }
 
 func OkResponse() Response {
 	return Response{
-	Status: http.StatusOK,
-	Body: gin.H{
-		"Status": "OK",
-	}}}
+		Status: http.StatusOK,
+		Body: gin.H{
+			"Status": "OK",
+		}}
+}
 
-
+// Create a simple HTTP server for Kubernetes health checks
 func Health() chan Response {
-	// Create a simple HTTP server for Kubernetes health checks
 	return GinResponse("/health", OkResponse())
 }
 
 func GinResponse(path string, response Response) chan Response {
 	c := make(chan Response)
-	
+
 	router := gin.Default()
 	router.GET(path, func(c *gin.Context) {
 		c.JSON(response.Status, response.Body)
@@ -35,10 +36,9 @@ func GinResponse(path string, response Response) chan Response {
 	go func() {
 		for {
 			response = <-c
+			log.Println("healthresponse got new response:", path, response)
 		}
 	}()
-	fmt.Println("healthresponse started:", path, response)
+	log.Println("healthresponse started:", path, response)
 	return c
 }
-
-
