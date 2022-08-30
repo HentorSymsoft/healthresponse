@@ -12,6 +12,9 @@ type Response struct {
 	Body   any
 }
 
+// M is a shortcut for map[string]any
+type M map[string]any
+
 func OkResponse() Response {
 	return Response{
 		Status: http.StatusOK,
